@@ -1,0 +1,71 @@
+#!/bin/bash
+
+usage() {
+  cat<<HERE
+  Usage: <command> [flags...] [args...]
+
+  Commands:
+    package       packages for deployment
+
+    deploy        deploys the lambda to cloudformation
+
+    make-bucket   makes the s3 bucket for this project
+
+    pnd           package and deploy
+
+    logs          gets the logs
+
+    local         runs the local server
+HERE
+}
+
+STACK_NAME=sam-i-am
+
+sam-package() {
+  echo packaging...; echo
+  ec2-exec sam package \
+    --output-template-file packaged.yaml \
+    --s3-bucket $STACK_NAME
+}
+
+sam-deploy() {
+  echo deploying...; echo
+  ec2-exec aws cloudformation deploy \
+    --template-file /Users/jfellman/Development/sam-i-am/packaged.yaml \
+    --stack-name $STACK_NAME \
+    --capabilities CAPABILITY_IAM \
+    --region us-west-2
+}
+
+sam-make-bucket() {
+  echo making bucket "$STACK_NAME" ...
+  ec2-exec aws s3 mb s3://$STACK_NAME
+}
+
+sam-logs() {
+  ec2-exec sam logs -n HelloWorldFunction --stack-name $STACK_NAME
+}
+
+sam-local() {
+  sam local start-api
+}
+
+cmd=$1
+args=${@:2}
+
+# print usage if no command is passed
+if [ "$cmd" = "package" ]; then
+  sam-package
+elif [ "$cmd" = "deploy" ]; then
+  sam-deploy
+elif [ "$cmd" = "make-bucket" ]; then
+  sam-make-bucket $args
+elif [ "$cmd" = "pnd" ]; then
+  sam-package && sam-deploy
+elif [ "$cmd" = "logs" ]; then
+  sam-logs
+elif [ "$cmd" = "local" ]; then
+  sam-local
+else
+  usage
+fi
