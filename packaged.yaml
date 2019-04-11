@@ -12,7 +12,7 @@ Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-i-am/1d5e62ba3f563c1bcb2c9a112673c9d8
+      CodeUri: s3://sam-i-am/02dd392ba36107a9d598e5eeca7a39a5
       Handler: app.lambdaHandler
       Runtime: nodejs8.10
       Events:

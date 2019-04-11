@@ -1,6 +1,13 @@
-const axios = require('axios')
-const url = 'http://checkip.amazonaws.com/';
-let response;
+const { testEndpoint, testWorkflow } = require('./helper')
+const baseUrl = 'https://'+process.env.SQ_HOST
+const customers = `${baseUrl}/v2/customers`
+
+const lukeInput = {
+  given_name: "luke",
+  family_name: "skywalker",
+  company_name: "The Rebellion™",
+  email_address: "power.converter27@toshi.station.com"
+}
 
 /**
  *
@@ -14,37 +21,36 @@ let response;
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  * 
  */
+// TODO: should I refactor to be able to indicate which tests were skipped?
 exports.lambdaHandler = async (event, context) => {
-  let ip;
-  let response;
+  return testWorkflow(
+    // create luke
+    async response => await testEndpoint(customers, "post", lukeInput, data => {
+      luke = data.customer
+      return luke
+    }),
 
-  try {
-    response = await axios.get(url)
-    ip = response.data.replace("\n","")
-    response = {
-      'statusCode': 200,
-      'body': JSON.stringify({
-        message: 'hello world, your ip is: ' + ip,
-        // location: ret.data.trim()
-      })
-    }
-  } catch(err) {
-    return { error: err }
-  }
+    // check that he's there
+    async response => await testEndpoint(customers, "get", null, async data => {
+      luke = response.data
+      let lukeCheck = data.customers.filter(customer => customer.id === luke.id)[0]
+      if (!lukeCheck) {
+        throw 'failed to find customer luke skywalker'
+      }
+      return luke
+    }),
 
-  // try {
-  //   // const ret = await axios(url);
-  //   response = {
-  //     'statusCode': 200,
-  //     'body': JSON.stringify({
-  //       message: 'hello world, your ip is: ' + ip,
-  //       // location: ret.data.trim()
-  //     })
-  //   }
-  // } catch (err) {
-  //   console.log(err);
-  //   return err;
-  // }
+    // delete him
+    async response => await testEndpoint(`${customers}/${response.data.id}`, "delete"),
 
-  return response
-};
+    // check that he's gone
+    async response => await testEndpoint(customers, "get", null, async data => {
+      luke = response.data
+      let lukeCheck = data.customers && data.customers.filter(customer => customer.id === luke.id)[0]
+      if (lukeCheck) {
+        throw 'found customer luke skywalker that should have been deleted'
+      }
+    })
+  )
+}
+

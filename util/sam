@@ -50,6 +50,8 @@ sam-local() {
   sam local start-api
 }
 
+source /tmp/.sqenv
+
 cmd=$1
 args=${@:2}
 
