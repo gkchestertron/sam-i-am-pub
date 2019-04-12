@@ -3,4 +3,5 @@ node_js:
   - "8.10"
 script:
   - cd hello-world
+  - npm install
   - npm run test
