@@ -1,0 +1,79 @@
+#!/bin/bash
+
+usage() {
+  cat<<HERE
+  general api management
+
+  Usage: <command> [args...]
+
+  Commands:
+    setenv <sandbox|staging|sandboxv1>  sets the env
+
+    env                                 logs the env
+HERE
+}
+
+completion() {
+  prev=$1
+  cur=$2
+  if [ "$prev" = "setenv" ]; then
+    echo sandbox staging sandboxv1
+  fi
+}
+
+customers-setenv() {
+  SQ_ENV=$1
+  touch /tmp/.sqenv
+  if [ "$SQ_ENV" = "sandbox" ]; then
+    rm /tmp/.sqenv
+    echo export SQ_ENV=$SQ_ENV >> /tmp/.sqenv
+    echo export SQ_ACCESS_TOKEN=$SQ_SANDBOX_ACCESS_TOKEN >> /tmp/.sqenv
+    echo export SQ_APP_ID=$SQ_SANDBOX_APP_ID >> /tmp/.sqenv
+    echo export SQ_HOST=connect.squareupsandbox.com >> /tmp/.sqenv
+  elif [ "$SQ_ENV" = "staging" ]; then
+    rm /tmp/.sqenv
+    echo export SQ_ENV=$SQ_ENV >> /tmp/.sqenv
+    echo export SQ_ACCESS_TOKEN=$SQ_STAGING_ACCESS_TOKEN >> /tmp/.sqenv
+    echo export SQ_APP_ID=$SQ_STAGING_APP_ID >> /tmp/.sqenv
+    echo export SQ_HOST=connect.squareupstaging.com >> /tmp/.sqenv
+  elif [ "$SQ_ENV" = "sandboxv1" ]; then
+    rm /tmp/.sqenv
+    echo export SQ_ENV=$SQ_ENV >> /tmp/.sqenv
+    echo export SQ_ACCESS_TOKEN=$SQ_STAGING_ACCESS_TOKEN_V1 >> /tmp/.sqenv
+    echo export SQ_APP_ID=$SQ_STAGING_APP_ID_V1 >> /tmp/.sqenv
+    echo export SQ_HOST=connect.squareup.com >> /tmp/.sqenv
+  else
+    echo invalid env name
+  fi
+}
+
+customers-env() {
+  echo \$SQ_ENV : $SQ_ENV
+  echo \$SQ_HOST : $SQ_HOST
+  echo \$SQ_APP_ID : $SQ_APP_ID
+  echo \$SQ_ACCESS_TOKEN : $SQ_ACCESS_TOKEN
+
+  echo
+  echo warning: to get access env in your own shell, run \"source /tmp/.sqenv\"
+}
+
+
+api-run() {
+  echo doing the thing...
+  echo the rest of your args are:
+  echo $@
+}
+
+touch /tmp/.sqenv
+source /tmp/.sqenv
+
+cmd=$1
+
+# print usage if no command is passed
+if [ "$cmd" = "setenv" ]; then
+  customers-setenv $2
+elif [ "$cmd" = "env" ]; then
+  customers-env
+else
+  usage
+fi

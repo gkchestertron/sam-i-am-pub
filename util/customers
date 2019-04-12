@@ -7,55 +7,13 @@ usage() {
   Usage: <command> [args...]
 
   Commands:
-    create <{props...}> <v1>            creates a customer, optionally using v1 sandbox
-                                        props are json encoded
+    create <{props...}>   creates a customer, optionally using v1 sandbox
+                          props are json encoded
 
-    delete <id> <v1>                    deletes a customer by id, optionally using v1 sandbox
+    delete <id>           deletes a customer by id, optionally using v1 sandbox
 
-    list <id> <v1>                      lists customers, optionally using v1 sandbox
-
-    setenv <sandbox|staging|sandboxv1>  sets the env
-
-    env                                 logs the env
+    list <id>             lists customers, optionally using v1 sandbox
 HERE
-}
-
-
-
-customers-setenv() {
-  SQ_ENV=$1
-  touch /tmp/.sqenv
-  if [ "$SQ_ENV" = "sandbox" ]; then
-    rm /tmp/.sqenv
-    echo export SQ_ENV=$SQ_ENV >> /tmp/.sqenv
-    echo export SQ_ACCESS_TOKEN=$SQ_SANDBOX_ACCESS_TOKEN >> /tmp/.sqenv
-    echo export SQ_APP_ID=$SQ_SANDBOX_APP_ID >> /tmp/.sqenv
-    echo export SQ_HOST=connect.squareupsandbox.com >> /tmp/.sqenv
-  elif [ "$SQ_ENV" = "staging" ]; then
-    rm /tmp/.sqenv
-    echo export SQ_ENV=$SQ_ENV >> /tmp/.sqenv
-    echo export SQ_ACCESS_TOKEN=$SQ_STAGING_ACCESS_TOKEN >> /tmp/.sqenv
-    echo export SQ_APP_ID=$SQ_STAGING_APP_ID >> /tmp/.sqenv
-    echo export SQ_HOST=connect.squareupstaging.com >> /tmp/.sqenv
-  elif [ "$SQ_ENV" = "sandboxv1" ]; then
-    rm /tmp/.sqenv
-    echo export SQ_ENV=$SQ_ENV >> /tmp/.sqenv
-    echo export SQ_ACCESS_TOKEN=$SQ_STAGING_ACCESS_TOKEN_V1 >> /tmp/.sqenv
-    echo export SQ_APP_ID=$SQ_STAGING_APP_ID_V1 >> /tmp/.sqenv
-    echo export SQ_HOST=connect.squareup.com >> /tmp/.sqenv
-  else
-    echo invalid env name
-  fi
-}
-
-customers-env() {
-  echo \$SQ_ENV : $SQ_ENV
-  echo \$SQ_HOST : $SQ_HOST
-  echo \$SQ_APP_ID : $SQ_APP_ID
-  echo \$SQ_ACCESS_TOKEN : $SQ_ACCESS_TOKEN
-
-  echo
-  echo warning: to get access env in your own shell, run \"source /tmp/.sqenv\"
 }
 
 customers-create() {
@@ -91,10 +49,6 @@ elif [ "$cmd" = "list" ]; then
   customers-list $2 $3
 elif [ "$cmd" = "create" ]; then
   customers-create $2 $3
-elif [ "$cmd" = "setenv" ]; then
-  customers-setenv $2 $3
-elif [ "$cmd" = "env" ]; then
-  customers-env
 else
   usage
 fi
