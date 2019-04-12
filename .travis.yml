@@ -9,5 +9,6 @@ notifications:
   email:
     recipients:
       - jfellman@squareup.com
-    on_success: never # default: always
+      - john.fellman@gmail.com
+    on_success: always # default: always
     on_failure: always # default: always
