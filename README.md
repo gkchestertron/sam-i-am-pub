@@ -1,4 +1,4 @@
-# sam-app
+# sam-app [![Build Status](https://travis-ci.com/gkchestertron/sam-i-am-pub.svg?branch=master)](https://travis-ci.com/gkchestertron/sam-i-am-pub)
 
 This is a sample template for sam-app - Below is a brief explanation of what we have generated for you:
 
