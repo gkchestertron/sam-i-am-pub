@@ -5,3 +5,9 @@ script:
   - cd hello-world
   - npm install
   - npm run test
+notifications:
+  email:
+    recipients:
+      - jfellman@squareup.com
+    on_success: never # default: always
+    on_failure: always # default: always
