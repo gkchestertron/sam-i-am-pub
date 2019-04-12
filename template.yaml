@@ -17,6 +17,10 @@ Resources:
       CodeUri: hello-world/
       Handler: app.lambdaHandler
       Runtime: nodejs8.10
+      Environment:
+        Variables:
+          SQ_HOST:
+          SQ_ACCESS_TOKEN:
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api

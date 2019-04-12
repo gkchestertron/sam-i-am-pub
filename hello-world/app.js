@@ -23,6 +23,7 @@ const lukeInput = {
  */
 // TODO: should I refactor to be able to indicate which tests were skipped?
 exports.lambdaHandler = async (event, context) => {
+  let luke
   return testWorkflow(
     // create luke
     async response => await testEndpoint(customers, "post", lukeInput, data => {
@@ -32,7 +33,6 @@ exports.lambdaHandler = async (event, context) => {
 
     // check that he's there
     async response => await testEndpoint(customers, "get", null, async data => {
-      luke = response.data
       let lukeCheck = data.customers.filter(customer => customer.id === luke.id)[0]
       if (!lukeCheck) {
         throw 'failed to find customer luke skywalker'
@@ -45,7 +45,6 @@ exports.lambdaHandler = async (event, context) => {
 
     // check that he's gone
     async response => await testEndpoint(customers, "get", null, async data => {
-      luke = response.data
       let lukeCheck = data.customers && data.customers.filter(customer => customer.id === luke.id)[0]
       if (lukeCheck) {
         throw 'found customer luke skywalker that should have been deleted'

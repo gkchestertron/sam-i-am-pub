@@ -7,17 +7,27 @@ usage() {
   Usage: <command> [args...]
 
   Commands:
-    setenv <sandbox|staging|sandboxv1>  sets the env
+    setenv <sandbox|staging|sandboxv1>          sets the env
+        
+    env                                         logs the env
 
-    env                                 logs the env
+    call <version> <endpoint> [method] [data] 	makes an api call
 HERE
 }
 
 completion() {
   prev=$1
   cur=$2
+	sub="${COMP_WORDS[2]}"
+
   if [ "$prev" = "setenv" ]; then
     echo sandbox staging sandboxv1
+	elif [ "$prev" = "call" ]; then
+		echo v1 v2
+	elif [ "$sub" = "call" ] && [ ! -z "${COMP_WORDS[4]}" ]; then
+    echo delete get post put
+	elif [ "$sub" = "call" ] && [ ! -z "${COMP_WORDS[3]}" ]; then
+    echo customers
   fi
 }
 
@@ -57,23 +67,35 @@ customers-env() {
   echo warning: to get access env in your own shell, run \"source /tmp/.sqenv\"
 }
 
+api-call() {
+  version=$1
+  endpoint=$2
+	method=$3
+	data=$4
 
-api-run() {
-  echo doing the thing...
-  echo the rest of your args are:
-  echo $@
+  if [ ! -z "$data" ]; then
+    echo executing: curl -X $method -H \"Accept: application/json\" -H \"Authorization: Bearer $SQ_ACCESS_TOKEN\" -d \"$data\" \"https://$SQ_HOST/$version/$endpoint\"
+  elif [ ! -z "$method" ]; then
+    echo executing: curl -X $method -H \"Accept: application/json\" -H \"Authorization: Bearer $SQ_ACCESS_TOKEN\" \"https://$SQ_HOST/$version/$endpoint\"
+  else
+    echo executing: curl -H \"Accept: application/json\" -H \"Authorization: Bearer $SQ_ACCESS_TOKEN\" \"https://$SQ_HOST/$version/$endpoint\"
+    curl -H "Accept: application/json" -H "Authorization: Bearer $SQ_ACCESS_TOKEN" "https://$SQ_HOST/$version/$endpoint"
+  fi
 }
 
 touch /tmp/.sqenv
 source /tmp/.sqenv
 
 cmd=$1
+args=${@:2}
 
 # print usage if no command is passed
 if [ "$cmd" = "setenv" ]; then
   customers-setenv $2
 elif [ "$cmd" = "env" ]; then
   customers-env
+elif [ "$cmd" = "call" ]; then
+  api-call ${args[@]}
 else
   usage
 fi
